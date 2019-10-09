@@ -95,6 +95,7 @@ class FSM {
             return false
         }
         this.redoArr.push(this.undoArr[this.undoArr.length -1])
+        console.log(redoArr)
         this.undoArr.pop()
         this.changeState(this.undoArr[this.undoArr.length -1])
         this.undoArr.pop()

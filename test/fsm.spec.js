@@ -242,7 +242,7 @@ describe('FSM', () => {
 
         });
 
-        it('disables redo after trigger call', () => {
+        it.only('disables redo after trigger call', () => {
             const student = new FSM(config);
 
             student.trigger('study');
