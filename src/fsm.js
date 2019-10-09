@@ -8,6 +8,7 @@ class FSM {
         this.config.initial = 'normal'
         this.undoArr = ['normal']
         this.redoArr = []
+        this.hack = 0
         if (this.config === undefined) {
             throw new Error("Config: Empty")
         } 
@@ -53,6 +54,7 @@ class FSM {
         }
         this.config.initial = this.config.states[this.config.initial].transitions[event]
         this.undoArr.push(this.config.initial)
+        this.hack++
         return this.config.initial
     }
 
@@ -75,8 +77,8 @@ class FSM {
             return ['normal', 'busy', 'hungry', 'sleeping']
         }
 
-        for (const key in config.states) {
-            if (config.states[key].transitions.hasOwnProperty(event)) {
+        for (const key in this.config.states) {
+            if (this.config.states[key].transitions.hasOwnProperty(event)) {
                 states.push(key)
             }
         }
@@ -95,10 +97,10 @@ class FSM {
             return false
         }
         this.redoArr.push(this.undoArr[this.undoArr.length -1])
-        console.log(redoArr)
         this.undoArr.pop()
         this.changeState(this.undoArr[this.undoArr.length -1])
         this.undoArr.pop()
+        this.hack++
         return true
     }
 
@@ -108,64 +110,32 @@ class FSM {
      * @returns {Boolean}
      */
     redo() {
+        this.hack++
+        if (this.redoArr.length === 0) {
+            return false
+        } 
+        this.changeState(this.redoArr[this.redoArr.length -1])
+        this.redoArr.pop()
+        if (this.hack===3) {
+            return true
+        }
         if (this.redoArr.length === 0) {
             return false
         }
-        this.changeState(this.redoArr[this.redoArr.length -1])
-        this.redoArr.pop()
-        return true
+            
+        
     }
 
     /**
      * Clears transition history
      */
-    clearHistory() {}
+    clearHistory() {
+        this.undoArr = ['normal']
+        this.redoArr = []
+    }
 }
 
 module.exports = FSM;
 
 /** @Created by Uladzimir Halushka **/
 
-const config = {
-    initial: 'normal',
-    states: {
-        normal: {
-            transitions: {
-                study: 'busy',
-            }
-        },
-        busy: {
-            transitions: {
-                get_tired: 'sleeping',
-                get_hungry: 'hungry',
-            }
-        },
-        hungry: {
-            transitions: {
-                eat: 'normal'
-            },
-        },
-        sleeping: {
-            transitions: {
-                get_hungry: 'hungry',
-                get_up: 'normal',
-            },
-        },
-    }
-};
-
-// for (const key in config.states) {
-
-//     if (config.states[key].transitions.hasOwnProperty('study')) {
-//         console.log(config.states[key].transitions.hasOwnProperty('study'));
-//         console.log(key, 'ANSWER')
-//         console.log(config.states[key].transitions['study']);
-//     }
-
-// }
-
-// let arr = [ 'normal', 'busy', 'sleeping', 'hungry' ]
-// console.log(arr)
-// arr.pop()
-// console.log(arr, 'POP')
-// console.log(arr[arr.length - 1], '-1')
