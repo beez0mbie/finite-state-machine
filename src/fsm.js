@@ -6,7 +6,8 @@ class FSM {
     constructor(config) {
         this.config = config;
         this.config.initial = 'normal'
-        this.triggerArr = ['normal']
+        this.undoArr = ['normal']
+        this.redoArr = []
         if (this.config === undefined) {
             throw new Error("Config: Empty")
         } 
@@ -37,7 +38,7 @@ class FSM {
             throw new Error("State: fail check");
         } 
         this.config.initial = state
-        this.triggerArr.push(this.config.initial)
+        this.undoArr.push(this.config.initial)
         return this.config.initial 
     }
 
@@ -51,7 +52,7 @@ class FSM {
             throw new Error("Event: fail check");
         }
         this.config.initial = this.config.states[this.config.initial].transitions[event]
-        this.triggerArr.push(this.config.initial)
+        this.undoArr.push(this.config.initial)
         return this.config.initial
     }
 
@@ -90,12 +91,13 @@ class FSM {
      * @returns {Boolean}
      */
     undo() {
-        if (this.triggerArr.length === 1) {
+        if (this.undoArr.length === 1) {
             return false
         }
-        this.triggerArr.pop()
-        this.changeState(this.triggerArr[this.triggerArr.length -1])
-        this.triggerArr.pop()
+        this.redoArr.push(this.undoArr[this.undoArr.length -1])
+        this.undoArr.pop()
+        this.changeState(this.undoArr[this.undoArr.length -1])
+        this.undoArr.pop()
         return true
     }
 
@@ -104,7 +106,14 @@ class FSM {
      * Returns false if redo is not available.
      * @returns {Boolean}
      */
-    redo() {}
+    redo() {
+        if (this.redoArr.length === 0) {
+            return false
+        }
+        this.changeState(this.redoArr[this.redoArr.length -1])
+        this.redoArr.pop()
+        return true
+    }
 
     /**
      * Clears transition history
@@ -154,8 +163,8 @@ const config = {
 
 // }
 
-let arr = [ 'normal', 'busy', 'sleeping', 'hungry' ]
-console.log(arr)
-arr.pop()
-console.log(arr, 'POP')
-console.log(arr[arr.length - 1], '-1')
+// let arr = [ 'normal', 'busy', 'sleeping', 'hungry' ]
+// console.log(arr)
+// arr.pop()
+// console.log(arr, 'POP')
+// console.log(arr[arr.length - 1], '-1')
